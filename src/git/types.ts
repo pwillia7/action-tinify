@@ -2,7 +2,7 @@ import {Context} from '@actions/github/lib/context'
 import {PullRequestEvent, PushEvent} from '@octokit/webhooks-types'
 import Image from '../image'
 
-export const supportedEvents = ['push', 'pull_request'] as const
+export const supportedEvents = ['push', 'pull_request', 'repository_dispatch'] as const
 
 type SupportedEvent = typeof supportedEvents[number]
 
@@ -19,12 +19,22 @@ interface ContextPullRequest extends ContextBase<PullRequestEvent> {
   eventName: 'pull_request'
 }
 
-export type SupportedContext = ContextPush | ContextPullRequest
+interface ContextPush extends ContextBase<RepositoryDispatchEvent> {
+  eventName: 'repository_dispatch'
+}
+
+export type SupportedContext = ContextPush | ContextPullRequest | ContextRepositoryDispatch
 
 export function isPushContext(
   context: SupportedContext
 ): context is ContextPush {
   return 'push' === context.eventName
+}
+
+export function isRepositoryDispatchContext(
+  context: SupportedContext
+): context is ContextPush {
+  return 'repository_dispatch' === context.eventName
 }
 
 export function isPullRequestContext(
