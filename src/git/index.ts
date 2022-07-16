@@ -25,6 +25,19 @@ export default class Git {
     const filesPromises: Promise<File[]>[] = []
 
     switch (this.context.eventName) {
+      case 'repository_dispatch':
+        for (const commit of this.context.payload.commits) {
+          const ref = commit.id
+
+          info(`[${this.context.eventName}] Fetching files for commit ${ref}`)
+          filesPromises.push(
+            this.getCommitFiles({
+              ...this.context.repo,
+              ref
+            })
+          )
+        }
+        break
       case 'push':
         for (const commit of this.context.payload.commits) {
           const ref = commit.id
